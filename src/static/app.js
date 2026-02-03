@@ -26,9 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
           participantsHTML = `
             <div class="participants-section">
               <strong>Participants:</strong>
-              <ul class="participants-list">
-                ${details.participants.map(p => `<li>${p}</li>`).join("")}
-              </ul>
+              <ul class="participants-list"></ul>
             </div>
           `;
         } else {
@@ -47,6 +45,44 @@ document.addEventListener("DOMContentLoaded", () => {
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
           ${participantsHTML}
         `;
+
+        // 参加者リストに削除ボタンを追加
+        if (details.participants.length > 0) {
+          const ul = activityCard.querySelector(".participants-list");
+          details.participants.forEach(email => {
+            const li = document.createElement("li");
+            li.style.display = "flex";
+            li.style.alignItems = "center";
+
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = email;
+            nameSpan.style.flexGrow = "1";
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.innerHTML = "🗑️";
+            deleteBtn.title = "登録解除";
+            deleteBtn.style.marginLeft = "8px";
+            deleteBtn.style.background = "none";
+            deleteBtn.style.border = "none";
+            deleteBtn.style.cursor = "pointer";
+            deleteBtn.style.fontSize = "1.1em";
+
+            deleteBtn.addEventListener("click", async () => {
+              if (confirm(`本当に ${email} を「${name}」から登録解除しますか？`)) {
+                const res = await fetch(`/activities/${encodeURIComponent(name)}/unregister?email=${encodeURIComponent(email)}`, { method: "DELETE" });
+                if (res.ok) {
+                  await fetchActivities();
+                } else {
+                  alert("登録解除に失敗しました");
+                }
+              }
+            });
+
+            li.appendChild(nameSpan);
+            li.appendChild(deleteBtn);
+            ul.appendChild(li);
+          });
+        }
 
         activitiesList.appendChild(activityCard);
 
@@ -83,6 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        // 参加登録成功時にアクティビティリストを再取得
+        await fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
