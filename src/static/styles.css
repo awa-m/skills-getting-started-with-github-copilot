@@ -1,3 +1,24 @@
+/* Add your styles here */
+
+/* Hide bullet points for participants list */
+#participants-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+#participants-list li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+#participants-list button {
+  margin-left: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1em;
+}
 * {
   box-sizing: border-box;
   margin: 0;
